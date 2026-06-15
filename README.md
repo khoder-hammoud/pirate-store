@@ -1,2 +1,2 @@
 # pirate-store
-Backend learning project built with Node.js, Express, and MongoDB to practice REST APIs, authentication, database design, and backend architecture.
+Personal backend learning project created to practice scalable API development, service-based architecture, authentication, database management, and clean code principles..
