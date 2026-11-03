@@ -1,0 +1,23 @@
+$kind: http-request
+name: POST /api/v1/branches
+url: "{{api_base}}/branches"
+method: POST
+headers:
+  Authorization: Bearer {{access_token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Main Branch",
+      "slug": "main-branch",
+      "address": "Riyadh",
+      "phone": "966500000000",
+      "settings": {
+        "currencyCode": "SAR",
+        "taxRate": "15",
+        "serviceChargeRate": "10",
+        "publicMenuEnabled": true
+      }
+    }
+order: 4000

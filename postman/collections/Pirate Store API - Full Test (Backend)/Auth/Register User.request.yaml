@@ -1,0 +1,24 @@
+$kind: http-request
+url: "{{baseUrl}}/api/users/register"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Test User",
+      "email": "{{userEmail}}",
+      "password": "{{userPassword}}"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status is 201 or 200', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });
+      try {
+        var body = pm.response.json();
+        if (body.token) { pm.environment.set('userToken', body.token); }
+        if (body._id) { pm.environment.set('userId', body._id); }
+      } catch (e) {}
+    language: text/javascript
+order: 1000

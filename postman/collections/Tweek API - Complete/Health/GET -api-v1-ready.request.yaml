@@ -1,0 +1,5 @@
+$kind: http-request
+name: GET /api/v1/ready
+url: "{{api_base}}/ready"
+method: GET
+order: 4000

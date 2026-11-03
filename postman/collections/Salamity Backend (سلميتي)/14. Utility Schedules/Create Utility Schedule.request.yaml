@@ -1,0 +1,28 @@
+$kind: http-request
+url: "{{baseUrl}}/utility-schedules"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "neighborhoodId": "{{neighborhoodId}}",
+      "utilityType": "WATER",
+      "period": "WEEKLY",
+      "scheduleValue": "الأحد والأربعاء من 8 صباحاً حتى 4 عصراً"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 2xx', function () {
+          pm.response.to.be.success;
+      });
+      pm.test('Response has success:true envelope', function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.eql(true);
+      });
+      const json = pm.response.json();
+      if (json.success) { pm.collectionVariables.set('utilityScheduleId', json.data.id); }
+    language: text/javascript
+order: 2000

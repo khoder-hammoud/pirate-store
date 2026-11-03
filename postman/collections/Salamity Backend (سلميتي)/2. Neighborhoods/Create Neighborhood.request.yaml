@@ -1,0 +1,24 @@
+$kind: http-request
+description: Requires only a valid JWT (JwtAuthGuard, not RequireCompleteProfileGuard) — intentionally callable with the pre-profile token from Verify OTP, since Complete Profile itself needs a neighborhoodId. Will fail with a duplicate-name error on repeat runs; that is expected and harmless.
+url: "{{baseUrl}}/neighborhoods"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "مركز سلمية"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const json = pm.response.json();
+      if (pm.response.code === 200 || pm.response.code === 201) {
+          pm.collectionVariables.set('neighborhoodId', json.data.id);
+          pm.test('Neighborhood created', function () { pm.expect(json.success).to.eql(true); });
+      } else {
+          console.log('Create Neighborhood skipped/failed (likely already exists) — reusing neighborhoodId from List step:', pm.collectionVariables.get('neighborhoodId'));
+      }
+    language: text/javascript
+order: 2000

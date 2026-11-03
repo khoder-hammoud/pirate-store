@@ -1,6 +1,6 @@
-// services/refundServiceFull.js
 const Refund = require('../models/Refund');
 const Order = require('../models/Order');
+const AppError = require('../utils/AppError');
 
 /**
  * Create Refund
@@ -27,20 +27,20 @@ const processRefund = async (refundId) => {
   const refund = await Refund.findById(refundId);
 
   if (!refund) return;
-
   if (refund.retryCount >= 3) return;
 
   try {
-    const success = Math.random() > 0.3; // 70% success rate
+    const success = Math.random() > 0.3;
 
-    if (!success) throw new Error('Payment failed');
+    if (!success) {
+      throw new Error('Payment failed');
+    }
 
     refund.status = 'success';
     refund.processedAt = new Date();
 
     await refund.save();
 
-    // Link with order
     await Order.findByIdAndUpdate(refund.order, {
       refund: refund._id,
       refundStatus: 'success'
@@ -54,12 +54,10 @@ const processRefund = async (refundId) => {
       refund.status = 'pending';
       await refund.save();
 
-      // Retry after 5 seconds
       setTimeout(() => {
         processRefund(refund._id);
       }, 5000);
     } else {
-      // Mark as failed after 3 retries
       await Order.findByIdAndUpdate(refund.order, {
         refundStatus: 'failed'
       });
@@ -74,12 +72,14 @@ const getRefundByOrderId = async (orderId, user) => {
   const order = await Order.findById(orderId);
 
   if (!order) {
-    throw new Error('Order not found');
+    throw new AppError('Order not found', 404);
   }
 
-  // Check authorization
-  if (order.user.toString() !== user._id.toString() && user.role !== 'admin') {
-    throw new Error('Not authorized');
+  if (
+    order.user.toString() !== user._id.toString() &&
+    user.role !== 'admin'
+  ) {
+    throw new AppError('Not authorized', 403);
   }
 
   const refund = await Refund.findOne({ order: orderId })
@@ -87,7 +87,7 @@ const getRefundByOrderId = async (orderId, user) => {
     .populate('user', 'name email');
 
   if (!refund) {
-    throw new Error('No refund found for this order');
+    throw new AppError('No refund found for this order', 404);
   }
 
   return refund;
@@ -104,7 +104,7 @@ const getAllRefunds = async () => {
 };
 
 /**
- * Get refund statistics (Admin only)
+ * Get refund statistics
  */
 const getRefundStats = async () => {
   const stats = await Refund.aggregate([
@@ -145,43 +145,56 @@ const getRefundStats = async () => {
  * Validate refund request
  */
 const validateRefundRequest = async (orderId, amount, userId, userRole) => {
-  // Validate amount
   if (!amount || amount <= 0) {
-    throw new Error('Amount must be a positive number');
+    throw new AppError('Amount must be a positive number', 400);
   }
 
-  // Check if order exists
   const order = await Order.findById(orderId);
+
   if (!order || order.isDeleted) {
-    throw new Error('Order not found');
+    throw new AppError('Order not found', 404);
   }
 
-  // Check authorization
-  if (order.user.toString() !== userId.toString() && userRole !== 'admin') {
-    throw new Error('Not authorized to refund this order');
+  if (
+    order.user.toString() !== userId.toString() &&
+    userRole !== 'admin'
+  ) {
+    throw new AppError('Not authorized to refund this order', 403);
   }
 
-  // Check if order is paid
   if (!order.isPaid) {
-    throw new Error('Order is not paid yet');
+    throw new AppError('Order is not paid yet', 400);
   }
 
-  // Check if refund amount exceeds order total
   if (amount > order.totalPrice) {
-    throw new Error(`Refund amount cannot exceed order total: ${order.totalPrice}`);
+    throw new AppError(
+      `Refund amount cannot exceed order total: ${order.totalPrice}`,
+      400
+    );
   }
 
-  // Check if refund already exists
   const existingRefund = await Refund.findOne({
     order: orderId,
     status: { $in: ['pending', 'success'] }
   });
 
   if (existingRefund) {
-    throw new Error('Refund already exists for this order');
+    throw new AppError('Refund already exists for this order', 400);
   }
 
   return order;
+};
+
+const validateAndCreateRefund = async (orderId, amount, userId, userRole) => {
+  await validateRefundRequest(orderId, amount, userId, userRole);
+
+  const refund = await createRefund({
+    orderId,
+    userId,
+    amount
+  });
+
+  return refund;
 };
 
 module.exports = {
@@ -190,5 +203,6 @@ module.exports = {
   getRefundByOrderId,
   getAllRefunds,
   getRefundStats,
-  validateRefundRequest
+  validateRefundRequest,
+  validateAndCreateRefund
 };

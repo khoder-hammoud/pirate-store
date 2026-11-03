@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{baseUrl}}/api/users/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "{{adminEmail}}",
+      "password": "{{adminPassword}}"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status is 200', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });
+      try {
+        var body = pm.response.json();
+        if (body.token) { pm.environment.set('adminToken', body.token); }
+        if (body._id) { pm.environment.set('adminId', body._id); }
+      } catch (e) {}
+    language: text/javascript
+order: 4000

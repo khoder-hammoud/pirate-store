@@ -1,0 +1,29 @@
+$kind: http-request
+url: "{{baseUrl}}/heritage-landmarks"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "قلعة شميميس",
+      "tagline": "قلعة أثرية تطل على مدينة سلمية",
+      "story": "قلعة شميميس من أبرز المعالم الأثرية القريبة من سلمية، بنيت على تل بركاني وتعود لعصور إسلامية مبكرة.",
+      "latitude": 34.999,
+      "longitude": 37.083
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 2xx', function () {
+          pm.response.to.be.success;
+      });
+      pm.test('Response has success:true envelope', function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.eql(true);
+      });
+      const json = pm.response.json();
+      if (json.success) { pm.collectionVariables.set('heritageId', json.data.id); }
+    language: text/javascript
+order: 2000

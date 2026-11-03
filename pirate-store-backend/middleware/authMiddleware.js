@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-
+const AppError = require('../utils/AppError');
 // حماية المسارات - فقط المستخدمين المسجلين
 const protect = async (req, res, next) => {
   let token;
@@ -18,11 +18,10 @@ const protect = async (req, res, next) => {
 
       next();
     } catch (error) {
-      console.error(error);
-      return res.status(401).json({ message: 'Not authorized, token failed' });
+        next(error);
     }
   } else {
-    return res.status(401).json({ message: 'Not authorized, no token' });
+   return next(new AppError('Not authorized, no token', 401 ));
   }
 };
 
@@ -31,7 +30,7 @@ const admin = (req, res, next) => {
   if (req.user && req.user.role === 'admin') {
     next();
   } else {
-    return res.status(403).json({ message: 'Not authorized as an admin' });
+    next(new AppError('Not authorized as an admin', 403));
   }
 };
 

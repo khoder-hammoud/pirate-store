@@ -1,0 +1,14 @@
+$kind: http-request
+name: PATCH /api/v1/business
+url: "{{api_base}}/business"
+method: PATCH
+headers:
+  Authorization: Bearer {{access_token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Tweek Cafe"
+    }
+order: 2000

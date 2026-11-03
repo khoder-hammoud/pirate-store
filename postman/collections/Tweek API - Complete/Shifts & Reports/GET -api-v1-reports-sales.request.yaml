@@ -1,0 +1,11 @@
+$kind: http-request
+name: GET /api/v1/reports/sales
+url: "{{api_base}}/reports/sales?branchId={{branch_id}}&startDate=2026-09-01T00:00:00.000Z&endDate=2026-09-30T23:59:59.999Z"
+method: GET
+headers:
+  Authorization: Bearer {{access_token}}
+queryParams:
+  branchId: "{{branch_id}}"
+  startDate: 2026-09-01T00:00:00.000Z
+  endDate: 2026-09-30T23:59:59.999Z
+order: 3000

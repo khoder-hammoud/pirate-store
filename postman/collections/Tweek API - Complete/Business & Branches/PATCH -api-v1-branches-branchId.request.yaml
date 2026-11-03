@@ -1,0 +1,18 @@
+$kind: http-request
+name: PATCH /api/v1/branches/:branchId
+url: "{{api_base}}/branches/{{branch_id}}"
+method: PATCH
+headers:
+  Authorization: Bearer {{access_token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Main Branch Updated",
+      "settings": {
+        "publicMenuEnabled": true,
+        "menuTitle": "Welcome to Tweek"
+      }
+    }
+order: 6000

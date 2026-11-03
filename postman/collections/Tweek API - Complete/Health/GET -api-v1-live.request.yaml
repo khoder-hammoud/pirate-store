@@ -1,0 +1,5 @@
+$kind: http-request
+name: GET /api/v1/live
+url: "{{api_base}}/live"
+method: GET
+order: 3000

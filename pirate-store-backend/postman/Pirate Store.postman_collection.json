@@ -1,0 +1,309 @@
+{
+  "info": {
+    "name": "Pirate Store API - Full Test (Backend)",
+    "description": "Full Postman collection to test Pirate Store backend (auth, products, orders, refunds, users). Run requests in the recommended order in the README.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "register"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201 or 200', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });",
+                  "try {",
+                  "  var body = pm.response.json();",
+                  "  if (body.token) { pm.environment.set('userToken', body.token); }",
+                  "  if (body._id) { pm.environment.set('userId', body._id); }",
+                  "} catch (e) {}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "login"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });",
+                  "try {",
+                  "  var body = pm.response.json();",
+                  "  if (body.token) { pm.environment.set('userToken', body.token); }",
+                  "  if (body._id) { pm.environment.set('userId', body._id); }",
+                  "} catch (e) {}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "login"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });",
+                  "try {",
+                  "  var body = pm.response.json();",
+                  "  if (body.token) { pm.environment.set('adminToken', body.token); }",
+                  "  if (body._id) { pm.environment.set('adminId', body._id); }",
+                  "} catch (e) {}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Create Product (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key":"Content-Type","value":"application/json"},
+              {"key":"Authorization","value":"Bearer {{adminToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Demo Product\",\n  \"price\": 19.99,\n  \"description\": \"Sample product for Postman collection\",\n  \"category\": \"demo\",\n  \"countInStock\": 100,\n  \"image\": \"/images/demo.jpg\"\n}"
+            },
+            "url": {"raw":"{{baseUrl}}/api/products","host":["{{baseUrl}}"],"path":["api","products"]}
+          },
+          "event": [
+            {"listen":"test","script":{"exec":["pm.test('Product created', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });","try { var body = pm.response.json(); if (body._id) pm.environment.set('productId', body._id); } catch(e) {}"],"type":"text/javascript"}}
+          ]
+        },
+        {
+          "name": "Get All Products (auth)",
+          "request": {
+            "method": "GET",
+            "header": [ {"key":"Authorization","value":"Bearer {{userToken}}"} ],
+            "url": {"raw":"{{baseUrl}}/api/products","host":["{{baseUrl}}"],"path":["api","products"]}
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [ {"key":"Authorization","value":"Bearer {{userToken}}"} ],
+            "url": {"raw":"{{baseUrl}}/api/products/{{productId}}","host":["{{baseUrl}}"],"path":["api","products","{{productId}}"]}
+          }
+        },
+        {
+          "name": "Update Product by ID (admin)",
+          "request": {
+            "method": "PUT",
+            "header": [ {"key":"Content-Type","value":"application/json"}, {"key":"Authorization","value":"Bearer {{adminToken}}"} ],
+            "body": {"mode":"raw","raw":"{\n  \"price\": 24.99,\n  \"countInStock\": 90\n}"},
+            "url": {"raw":"{{baseUrl}}/api/products/{{productId}}","host":["{{baseUrl}}"],"path":["api","products","{{productId}}"]}
+          }
+        },
+        {
+          "name": "Update All Products (admin)",
+          "request": {
+            "method": "PUT",
+            "header": [ {"key":"Content-Type","value":"application/json"}, {"key":"Authorization","value":"Bearer {{adminToken}}"} ],
+            "body": {"mode":"raw","raw":"{\n  \"price\": 9.99\n}"},
+            "url": {"raw":"{{baseUrl}}/api/products","host":["{{baseUrl}}"],"path":["api","products"]}
+          }
+        },
+        {
+          "name": "Delete Product by ID (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [ {"key":"Authorization","value":"Bearer {{adminToken}}"} ],
+            "url": {"raw":"{{baseUrl}}/api/products/{{productId}}","host":["{{baseUrl}}"],"path":["api","products","{{productId}}"]}
+          }
+        },
+        {
+          "name": "Delete All Products (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [ {"key":"Authorization","value":"Bearer {{adminToken}}"} ],
+            "url": {"raw":"{{baseUrl}}/api/products","host":["{{baseUrl}}"],"path":["api","products"]}
+          },
+          "description": "Dangerous: deletes all products. Use only for teardown."
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Create Order (user)",
+          "request": {
+            "method": "POST",
+            "header": [ {"key":"Content-Type","value":"application/json"}, {"key":"Authorization","value":"Bearer {{userToken}}"} ],
+            "body": {"mode":"raw","raw":"{\n  \"orderItems\": [ { \"product\": \"{{productId}}\", \"quantity\": 1 } ],\n  \"shippingAddress\": { \"address\": \"123 Demo St\", \"city\": \"Tunis\", \"postalCode\": \"1000\", \"country\": \"TN\" }\n}"},
+            "url": {"raw":"{{baseUrl}}/api/orders","host":["{{baseUrl}}"],"path":["api","orders"]}
+          },
+          "event": [ {"listen":"test","script":{"exec":["pm.test('Order created', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });","try { var body = pm.response.json(); var id = body.order && body.order._id ? body.order._id : body._id; if (id) pm.environment.set('orderId', id); } catch(e) {}"],"type":"text/javascript"}} ]
+        },
+        {
+          "name": "Get My Orders (user)",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{userToken}}"}],"url":{"raw":"{{baseUrl}}/api/orders/myorders","host":["{{baseUrl}}"],"path":["api","orders","myorders"]}}
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{userToken}}"}],"url":{"raw":"{{baseUrl}}/api/orders/{{orderId}}","host":["{{baseUrl}}"],"path":["api","orders","{{orderId}}"]}},
+          "description": "Requires prior Create Order to set {{orderId}}"
+        },
+        {
+          "name": "Mark Order Paid (user)",
+          "request": {"method":"PUT","header":[{"key":"Authorization","value":"Bearer {{userToken}}"}],"url":{"raw":"{{baseUrl}}/api/orders/{{orderId}}/pay","host":["{{baseUrl}}"],"path":["api","orders","{{orderId}}","pay"]}},
+          "description": "User or admin can call to mark paid; this will decrement stock." 
+        },
+        {
+          "name": "Mark Order Delivered (admin)",
+          "request": {"method":"PUT","header":[{"key":"Authorization","value":"Bearer {{adminToken}}"}],"url":{"raw":"{{baseUrl}}/api/orders/{{orderId}}/deliver","host":["{{baseUrl}}"],"path":["api","orders","{{orderId}}","deliver"]}}
+        },
+        {
+          "name": "Cancel Order (user)",
+          "request": {"method":"PUT","header":[{"key":"Authorization","value":"Bearer {{userToken}}"}],"url":{"raw":"{{baseUrl}}/api/orders/{{orderId}}/cancel","host":["{{baseUrl}}"],"path":["api","orders","{{orderId}}","cancel"]}},
+          "description": "Cancels order. Owner can cancel within allowed window; admin can cancel anytime."
+        },
+        {
+          "name": "Delete Order (admin)",
+          "request": {"method":"DELETE","header":[{"key":"Authorization","value":"Bearer {{adminToken}}"}],"url":{"raw":"{{baseUrl}}/api/orders/{{orderId}}","host":["{{baseUrl}}"],"path":["api","orders","{{orderId}}"]}},
+          "description": "Soft-delete by admin"
+        }
+      ]
+    },
+    {
+      "name": "Refunds",
+      "item": [
+        {
+          "name": "Initiate Refund (user)",
+          "request": {
+            "method": "POST",
+            "header": [ {"key":"Content-Type","value":"application/json"}, {"key":"Authorization","value":"Bearer {{userToken}}"} ],
+            "body": {"mode":"raw","raw":"{\n  \"amount\": 5.00\n}"},
+            "url": {"raw":"{{baseUrl}}/api/refunds/orders/{{orderId}}","host":["{{baseUrl}}"],"path":["api","refunds","orders","{{orderId}}"]}
+          },
+          "event": [ {"listen":"test","script":{"exec":["pm.test('Refund initiated or accepted', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });","try { var body = pm.response.json(); var id = body.refund && body.refund._id ? body.refund._id : body._id; if (id) pm.environment.set('refundId', id); } catch(e) {}"],"type":"text/javascript"}} ]
+        },
+        {
+          "name": "Get Refund by Order ID",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{userToken}}"}],"url":{"raw":"{{baseUrl}}/api/refunds/orders/{{orderId}}","host":["{{baseUrl}}"],"path":["api","refunds","orders","{{orderId}}"]}}
+        },
+        {
+          "name": "Get All Refunds (admin)",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{adminToken}}"}],"url":{"raw":"{{baseUrl}}/api/refunds","host":["{{baseUrl}}"],"path":["api","refunds"]}}
+        },
+        {
+          "name": "Get Refund Stats (admin)",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{adminToken}}"}],"url":{"raw":"{{baseUrl}}/api/refunds/stats","host":["{{baseUrl}}"],"path":["api","refunds","stats"]}}
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{userToken}}"}],"url":{"raw":"{{baseUrl}}/api/users/profile","host":["{{baseUrl}}"],"path":["api","users","profile"]}}
+        },
+        {
+          "name": "Update My Profile",
+          "request": {"method":"PUT","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{userToken}}"}],"body":{"mode":"raw","raw":"{\n  \"name\": \"Updated Name\"\n}"},"url":{"raw":"{{baseUrl}}/api/users/profile","host":["{{baseUrl}}"],"path":["api","users","profile"]}}
+        },
+        {
+          "name": "Get All Users (admin)",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{adminToken}}"}],"url":{"raw":"{{baseUrl}}/api/users","host":["{{baseUrl}}"],"path":["api","users"]}}
+        },
+        {
+          "name": "Delete User by ID (admin)",
+          "request": {"method":"DELETE","header":[{"key":"Authorization","value":"Bearer {{adminToken}}"}],"url":{"raw":"{{baseUrl}}/api/users/{{userId}}","host":["{{baseUrl}}"],"path":["api","users","{{userId}}"]}},
+          "description": "Deletes the test user if admin wants cleanup"
+        }
+      ]
+    }
+  ]
+}

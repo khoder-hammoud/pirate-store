@@ -1,0 +1,42 @@
+$kind: collection
+name: Salamity Backend (سلميتي)
+description: |-
+  Full API test collection for the NestJS backend of the سلميتي (Salamiyah) app.
+
+  **How to run (Collection Runner, top to bottom):**
+  1. Make sure the backend is running: `npm run start:dev` (default `baseUrl` = http://localhost:3000).
+  2. Run "0. Health" and "1. Auth - Login > Request OTP".
+  3. Check the backend server console for a log line like `OTP for <phone>: 1234`, paste that 4-digit code into the collection variable `otpCode`.
+  4. Run "Verify OTP" — this captures a pre-profile `accessToken` automatically.
+  5. Run "2. Neighborhoods" (creates/reuses a neighborhood and captures `neighborhoodId`).
+  6. Run "3. Auth - Complete Profile" — this re-issues a full `accessToken` with `userId`, used by every request after this point.
+  7. Run the remaining folders in order (4 through 16) — each captures its own created-record id (adId, jobId, reelId, etc.) into collection variables for the next requests in that folder.
+
+  All collection variables (`accessToken`, `neighborhoodId`, `adId`, ...) are filled in automatically by test scripts as you go, except `phoneNumber` and `otpCode`, which are manual because OTP delivery is only logged server-side (no real SMS provider is wired up yet — see the README's TODO).
+
+  Re-running the whole collection a second time is safe: Create Neighborhood/Complete Profile are designed to fail gracefully on duplicates and keep using the previously captured ids/token.
+variables:
+  baseUrl: http://localhost:3000
+  phoneNumber: "963944123456"
+  otpCode: ""
+  accessToken: ""
+  profileComplete: ""
+  neighborhoodId: ""
+  adId: ""
+  jobId: ""
+  lostFoundId: ""
+  reelId: ""
+  commentId: ""
+  favoriteId: ""
+  newsId: ""
+  eventId: ""
+  heritageId: ""
+  importantNumberId: ""
+  utilityScheduleId: ""
+  uploadedPath: ""
+auth:
+  - id: 6431760c-408e-447d-8cff-6dcf53b425e9
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{accessToken}}"

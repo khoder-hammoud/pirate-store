@@ -1,0 +1,17 @@
+$kind: http-request
+name: POST /api/v1/suppliers
+url: "{{api_base}}/suppliers"
+method: POST
+headers:
+  Authorization: Bearer {{access_token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Al Jamal Foods",
+      "phone": "966500000002",
+      "email": "supplier@tuwaiq.com",
+      "address": "Riyadh"
+    }
+order: 2000

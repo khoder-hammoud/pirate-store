@@ -1,0 +1,27 @@
+$kind: http-request
+url: "{{baseUrl}}/important-numbers"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "category": "طوارئ",
+      "label": "الدفاع المدني",
+      "number": "113"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 2xx', function () {
+          pm.response.to.be.success;
+      });
+      pm.test('Response has success:true envelope', function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.eql(true);
+      });
+      const json = pm.response.json();
+      if (json.success) { pm.collectionVariables.set('importantNumberId', json.data.id); }
+    language: text/javascript
+order: 2000

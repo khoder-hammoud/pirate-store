@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/api/orders/{{orderId}}/deliver"
+method: PUT
+headers:
+  Authorization: Bearer {{adminToken}}
+order: 5000

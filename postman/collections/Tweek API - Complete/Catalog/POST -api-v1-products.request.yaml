@@ -1,0 +1,19 @@
+$kind: http-request
+name: POST /api/v1/products
+url: "{{api_base}}/products"
+method: POST
+headers:
+  Authorization: Bearer {{access_token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Latte",
+      "categoryId": "{{category_id}}",
+      "basePrice": "25.50",
+      "description": "Espresso coffee with milk",
+      "sku": "LATTE-001",
+      "trackInventory": false
+    }
+order: 4000

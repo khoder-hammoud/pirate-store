@@ -1,0 +1,15 @@
+$kind: http-request
+name: POST /api/v1/uploads/signature
+url: "{{api_base}}/uploads/signature"
+method: POST
+headers:
+  Authorization: Bearer {{access_token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "fileName": "sample.png",
+      "fileType": "image/png"
+    }
+order: 2000

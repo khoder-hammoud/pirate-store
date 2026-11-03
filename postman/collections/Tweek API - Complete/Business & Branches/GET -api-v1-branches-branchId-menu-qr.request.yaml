@@ -1,0 +1,7 @@
+$kind: http-request
+name: GET /api/v1/branches/:branchId/menu-qr
+url: "{{api_base}}/branches/{{branch_id}}/menu-qr"
+method: GET
+headers:
+  Authorization: Bearer {{access_token}}
+order: 7000

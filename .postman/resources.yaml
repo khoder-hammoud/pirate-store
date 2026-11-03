@@ -1,0 +1,11 @@
+workspace:
+  id: dff9bfe5-5a4f-4050-8e7f-b1bf59e223cc
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ../postman/collections/My Collection: 49760933-7bd5e8bb-2c5e-4f61-81f5-8d3e22f49878
+    ../postman/collections/Pirate Store API - Full Test (Backend): 3979a93f-7c7b-4eff-9064-3390077a8fac
+    ../postman/collections/Tweek API - Complete: 581f74e5-e30e-4b9c-9dd3-aa66779bc8b1
+    ../postman/collections/Salamity Backend (سلميتي): 0c975d00-55b2-4fdd-918c-72ac28afdc4f

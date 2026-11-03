@@ -1,0 +1,30 @@
+name: Tweek Local
+values:
+  - key: base_url
+    value: 'http://localhost:4000'
+  - key: access_token
+    value: ''
+  - key: business_id
+    value: ''
+  - key: branch_id
+    value: ''
+  - key: role_id
+    value: ''
+  - key: membership_id
+    value: ''
+  - key: category_id
+    value: ''
+  - key: product_id
+    value: ''
+  - key: inventory_item_id
+    value: ''
+  - key: supplier_id
+    value: ''
+  - key: purchase_id
+    value: ''
+  - key: sale_id
+    value: ''
+  - key: shift_definition_id
+    value: ''
+  - key: report_type
+    value: daily

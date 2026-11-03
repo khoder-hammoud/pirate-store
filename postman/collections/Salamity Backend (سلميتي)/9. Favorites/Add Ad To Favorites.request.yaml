@@ -1,0 +1,25 @@
+$kind: http-request
+url: "{{baseUrl}}/favorites"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "adId": "{{adId}}"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 2xx', function () {
+          pm.response.to.be.success;
+      });
+      pm.test('Response has success:true envelope', function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.eql(true);
+      });
+      const json = pm.response.json();
+      if (json.success) { pm.collectionVariables.set('favoriteId', json.data.id); }
+    language: text/javascript
+order: 1000

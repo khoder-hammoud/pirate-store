@@ -1,7 +1,7 @@
 const allowedTransitions = {
   pending: ['paid', 'cancelled'],
 
-  paid: ['shipped', 'cancelled'],
+  paid: ['shipped', 'cancelled','delivered'],
 
   shipped: ['delivered'],
 

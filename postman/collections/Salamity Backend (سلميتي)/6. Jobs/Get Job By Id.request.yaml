@@ -1,0 +1,17 @@
+$kind: http-request
+url: "{{baseUrl}}/jobs/{{jobId}}"
+method: GET
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 2xx', function () {
+          pm.response.to.be.success;
+      });
+      pm.test('Response has success:true envelope', function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.eql(true);
+      });
+    language: text/javascript
+order: 3000

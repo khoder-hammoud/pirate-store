@@ -1,0 +1,20 @@
+$kind: http-request
+url: "{{baseUrl}}/api/orders"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{userToken}}
+body:
+  type: text
+  content: |-
+    {
+      "orderItems": [ { "product": "{{productId}}", "quantity": 1 } ],
+      "shippingAddress": { "address": "123 Demo St", "city": "Tunis", "postalCode": "1000", "country": "TN" }
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Order created', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });
+      try { var body = pm.response.json(); var id = body.order && body.order._id ? body.order._id : body._id; if (id) pm.environment.set('orderId', id); } catch(e) {}
+    language: text/javascript
+order: 1000

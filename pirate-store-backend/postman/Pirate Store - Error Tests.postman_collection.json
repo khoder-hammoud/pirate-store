@@ -1,0 +1,115 @@
+{
+  "info": {
+    "name": "Pirate Store - Error Tests",
+    "description": "Tests for error scenarios: Invalid/Missing Token, Invalid ID, Invalid Email, Duplicate User, Unauthorized Access, Validation Errors.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Ensure Test User Exists (idempotent)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Error Test User\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/users/register", "host": ["{{baseUrl}}"], "path": ["api","users","register"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('201 or user exists', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201,400]); });",
+              "try {",
+              "  var body = pm.response.json();",
+              "  if (body.token) pm.environment.set('userToken', body.token);",
+              "  if (body._id) pm.environment.set('userId', body._id);",
+              "} catch (e) {}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Duplicate User (expect 400)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Error Test User\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}" },
+        "url": { "raw": "{{baseUrl}}/api/users/register", "host": ["{{baseUrl}}"], "path": ["api","users","register"] }
+      },
+      "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Expect duplicate user error (400)', function(){ pm.expect(pm.response.code).to.eql(400); });", "try { var b = pm.response.json(); pm.test('message includes duplicate or exists', function(){ pm.expect(b.message.toLowerCase()).to.include('exist'); }); } catch(e) {}" ], "type": "text/javascript" } } ]
+    },
+    {
+      "name": "Invalid Email on Register",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Bad Email\",\n  \"email\": \"not-an-email\",\n  \"password\": \"123456\"\n}" },
+        "url": { "raw": "{{baseUrl}}/api/users/register", "host": ["{{baseUrl}}"], "path": ["api","users","register"] }
+      },
+      "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Expect invalid email (400)', function(){ pm.expect(pm.response.code).to.eql(400); });", "try { var b = pm.response.json(); pm.test('message mentions email', function(){ pm.expect(b.message.toLowerCase()).to.include('email'); }); } catch(e) {}" ], "type": "text/javascript" } } ]
+    },
+    {
+      "name": "Invalid Token (protected) - GET /api/products",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer invalid.token" }, { "key": "Content-Type", "value": "application/json" } ],
+        "url": { "raw": "{{baseUrl}}/api/products", "host": ["{{baseUrl}}"], "path": ["api","products"] }
+      },
+      "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Expect invalid token -> 401', function(){ pm.expect(pm.response.code).to.eql(401); });", "try { var b = pm.response.json(); pm.test('message is Invalid token', function(){ pm.expect(b.message).to.eql('Invalid token'); }); } catch(e) {}" ], "type": "text/javascript" } } ]
+    },
+    {
+      "name": "Missing Token (protected) - GET /api/products",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "url": { "raw": "{{baseUrl}}/api/products", "host": ["{{baseUrl}}"], "path": ["api","products"] }
+      },
+      "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Expect missing token -> 401', function(){ pm.expect(pm.response.code).to.eql(401); });", "try { var b = pm.response.json(); pm.test('message mentions token', function(){ pm.expect(b.message.toLowerCase()).to.include('token'); }); } catch(e) {}" ], "type": "text/javascript" } } ]
+    },
+    {
+      "name": "Invalid ID (product) - GET /api/products/invalid-id",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{userToken}}" }, { "key": "Content-Type", "value": "application/json" } ],
+        "url": { "raw": "{{baseUrl}}/api/products/invalid-id", "host": ["{{baseUrl}}"], "path": ["api","products","invalid-id"] }
+      },
+      "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Expect invalid id -> 400', function(){ pm.expect(pm.response.code).to.eql(400); });", "try { var b = pm.response.json(); pm.test('message mentions invalid id', function(){ pm.expect(b.message.toLowerCase()).to.include('invalid'); }); } catch(e) {}" ], "type": "text/javascript" } } ]
+    },
+    {
+      "name": "Unauthorized Access (user tries admin-only) - DELETE /api/products/{{productId}}",
+      "request": {
+        "method": "DELETE",
+        "header": [ { "key": "Authorization", "value": "Bearer {{userToken}}" } ],
+        "url": { "raw": "{{baseUrl}}/api/products/{{productId}}", "host": ["{{baseUrl}}"], "path": ["api","products","{{productId}}"] }
+      },
+      "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Expect forbidden (403) for non-admin', function(){ pm.expect(pm.response.code).to.eql(403); });", "try { var b = pm.response.json(); pm.test('message mentions admin', function(){ pm.expect(b.message.toLowerCase()).to.include('admin'); }); } catch(e) {}" ], "type": "text/javascript" } } ]
+    },
+    {
+      "name": "Validation Error - Create Product Missing Fields (admin)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"\",\n  \"price\": 0\n}" },
+        "url": { "raw": "{{baseUrl}}/api/products", "host": ["{{baseUrl}}"], "path": ["api","products"] }
+      },
+      "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Expect validation error 400', function(){ pm.expect(pm.response.code).to.eql(400); });", "try { var b = pm.response.json(); pm.test('message mentions required', function(){ pm.expect(b.message.toLowerCase()).to.include('required'); }); } catch(e) {}" ], "type": "text/javascript" } } ]
+    },
+    {
+      "name": "Validation Error - Create Order Missing Fields (user)",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{userToken}}" } ],
+        "body": { "mode": "raw", "raw": "{ }" },
+        "url": { "raw": "{{baseUrl}}/api/orders", "host": ["{{baseUrl}}"], "path": ["api","orders"] }
+      },
+      "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Expect order validation error 400', function(){ pm.expect(pm.response.code).to.eql(400); });", "try { var b = pm.response.json(); pm.test('message mentions order items', function(){ pm.expect(b.message.toLowerCase()).to.include('order items'); }); } catch(e) {}" ], "type": "text/javascript" } } ]
+    }
+  ]
+}

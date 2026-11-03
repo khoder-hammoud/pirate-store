@@ -1,0 +1,28 @@
+$kind: http-request
+description: Creates the User row and re-issues the JWT, now with a `userId` claim — every endpoint below this point needs that. Fails with "في حساب مسجّل مسبقاً" if this phone number already completed a profile; on a repeat full-collection run either change `phoneNumber` first or ignore the failure and reuse the previously captured accessToken.
+url: "{{baseUrl}}/auth/complete-profile"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "أحمد الجوهري",
+      "age": 25,
+      "gender": "MALE",
+      "neighborhoodId": "{{neighborhoodId}}",
+      "photoPath": ""
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const json = pm.response.json();
+      if (pm.response.code === 200 || pm.response.code === 201) {
+          pm.collectionVariables.set('accessToken', json.data.accessToken);
+          pm.test('Full accessToken captured (with userId)', function () { pm.expect(json.success).to.eql(true); });
+      } else {
+          console.log('Complete Profile failed (likely already completed for this phone number) — keep using the existing accessToken.');
+      }
+    language: text/javascript
+order: 1000

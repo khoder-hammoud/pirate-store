@@ -1,0 +1,5 @@
+$kind: http-request
+name: GET /api/v1/public/menu/:publicMenuSlug
+url: "{{api_base}}/public/menu/menu-abc123"
+method: GET
+order: 1000

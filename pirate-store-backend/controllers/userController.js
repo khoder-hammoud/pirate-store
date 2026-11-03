@@ -1,119 +1,76 @@
-// controllers/userController.js
 const userService = require('../services/userService');
+const AppError = require('../utils/AppError');
 
 /**
- * Register User - POST /api/users/register
- * @access Public
+ * Register User
  */
-const registerUser = async (req, res) => {
-  try {
-    const user = await userService.registerUser(req.body);
-    res.status(201).json(user);
-  } catch (error) {
-    console.error('Register Error:', error);
+const registerUser = async (req, res, next) => {
+  const user = await userService.registerUser(req.body);
 
-    if (error.message === 'المستخدم موجود مسبقاً') {
-      return res.status(400).json({ message: error.message });
-    }
-
-    if (error.message === 'بيانات غير صالحة') {
-      return res.status(400).json({ message: error.message });
-    }
-
-    res.status(500).json({ message: error.message });
-  }
+  res.status(201).json(user);
 };
 
 /**
- * Login User - POST /api/users/login
- * @access Public
+ * Login User
  */
-const loginUser = async (req, res) => {
-  try {
-    const user = await userService.loginUser(req.body.email, req.body.password);
-    res.status(200).json(user);
-  } catch (error) {
-    console.error('Login Error:', error);
+const loginUser = async (req, res, next) => {
+  const user = await userService.loginUser(
+    req.body.email,
+    req.body.password
+  );
 
-    if (
-      error.message === 'البريد الإلكتروني أو كلمة المرور غير صحيحة'
-    ) {
-      return res.status(401).json({ message: error.message });
-    }
-
-    res.status(500).json({ message: error.message });
-  }
+  res.status(200).json(user);
 };
 
 /**
- * Get User Profile - GET /api/users/profile
- * @access Private
+ * Get User Profile
  */
-const getUserProfile = async (req, res) => {
-  try {
-    const user = await userService.getUserProfile(req.user._id);
-    res.status(200).json(user);
-  } catch (error) {
-    console.error('Get Profile Error:', error);
+const getUserProfile = async (req, res, next) => {
+  const user = await userService.getUserProfile(req.user._id);
 
-    if (error.message === 'User not found') {
-      return res.status(404).json({ message: error.message });
-    }
-
-    res.status(500).json({ message: error.message });
+  if (!user) {
+    return next(new AppError('User not found', 404));
   }
+
+  res.status(200).json(user);
 };
 
 /**
- * Update User Profile - PUT /api/users/profile
- * @access Private
+ * Update User Profile
  */
-const updateUserProfile = async (req, res) => {
-  try {
-    const user = await userService.updateUserProfile(req.user._id, req.body);
-    res.status(200).json(user);
-  } catch (error) {
-    console.error('Update Profile Error:', error);
+const updateUserProfile = async (req, res, next) => {
+  const user = await userService.updateUserProfile(
+    req.user._id,
+    req.body
+  );
 
-    if (error.message === 'User not found') {
-      return res.status(404).json({ message: error.message });
-    }
-
-    res.status(500).json({ message: error.message });
+  if (!user) {
+    return next(new AppError('User not found', 404));
   }
+
+  res.status(200).json(user);
 };
 
 /**
- * Get All Users - GET /api/users
- * @access Private (Admin)
+ * Get All Users (Admin)
  */
-const getAllUsers = async (req, res) => {
-  try {
-    const users = await userService.getAllUsers();
-    res.status(200).json(users);
-  } catch (error) {
-    console.error('Get All Users Error:', error);
-    res.status(500).json({ message: error.message });
-  }
+const getAllUsers = async (req, res, next) => {
+  const users = await userService.getAllUsers();
+
+  res.status(200).json(users);
 };
 
 /**
- * Delete User by ID - DELETE /api/users/:id
- * @access Private (Admin)
+ * Delete User by ID (Admin)
  */
-const deleteUserById = async (req, res) => {
-  try {
-    const result = await userService.deleteUserById(req.params.id);
-    res.status(200).json(result);
-  } catch (error) {
-    console.error('Delete User Error:', error);
+const deleteUserById = async (req, res, next) => {
+  const result = await userService.deleteUserById(req.params.id);
 
-    if (error.message === 'User not found') {
-      return res.status(404).json({ message: error.message });
-    }
-
-    res.status(500).json({ message: error.message });
+  if (!result) {
+    return next(new AppError('User not found', 404));
   }
+
+  res.status(200).json(result);
 };
 
 module.exports = {

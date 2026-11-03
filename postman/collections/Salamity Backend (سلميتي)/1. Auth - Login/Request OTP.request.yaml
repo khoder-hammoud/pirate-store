@@ -1,0 +1,31 @@
+$kind: http-request
+description: Triggers OTP generation. The code is only logged server-side (see the NestJS console) — set it manually into the collection variable `otpCode` before running Verify OTP.
+url: "{{baseUrl}}/auth/request-otp"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "phoneNumber": "{{phoneNumber}}"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 2xx', function () {
+          pm.response.to.be.success;
+      });
+      pm.test('Response has success:true envelope', function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.eql(true);
+      });
+      // The OTP code is NOT returned by the API on purpose (mirrors a real SMS flow).
+      // Check the backend server's console/log output for a line like:
+      //   [AuthService] OTP for 963944123456: 1234
+      // then paste that 4-digit code into the "otpCode" collection variable
+      // before running "Verify OTP" below.
+    language: text/javascript
+order: 1000

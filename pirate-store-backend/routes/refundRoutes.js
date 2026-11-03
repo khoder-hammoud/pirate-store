@@ -1,4 +1,5 @@
 const express = require('express');
+const asyncWrapper = require('../utils/asyncWrapper');
 const router = express.Router();
 
 const {
@@ -9,29 +10,44 @@ const {
 } = require('../controllers/refundController');
 
 const { protect, admin } = require('../middleware/authMiddleware');
+const { validateRefundInitiation, validateObjectId } = require('../middleware/validators/refundValidator');
 
 /**
  * User Routes
  */
 
-// Initiate Refund for an Order
-// POST /api/refunds/orders/:id
-router.post('/orders/:id', protect, initiateRefund);
-
-// Get Refund by Order ID
-// GET /api/refunds/orders/:id
-router.get('/orders/:id', protect, getRefundByOrderId);
+// POST /api/refunds/orders/:id  -> initiate or get refund by order
+router.route('/orders/:id')
+  .post(
+    asyncWrapper(protect),
+    asyncWrapper(validateObjectId),
+    asyncWrapper(validateRefundInitiation),
+    asyncWrapper(initiateRefund)
+  )
+  .get(
+    asyncWrapper(protect),
+    asyncWrapper(validateObjectId),
+    asyncWrapper(getRefundByOrderId)
+  );
 
 /**
  * Admin Routes
  */
 
-// Get All Refunds (Admin Only)
 // GET /api/refunds
-router.get('/', protect, admin, getAllRefunds);
+router.get(
+  '/',
+  asyncWrapper(protect),
+  asyncWrapper(admin),
+  asyncWrapper(getAllRefunds)
+);
 
-// Get Refund Statistics (Admin Only)
 // GET /api/refunds/stats
-router.get('/stats', protect, admin, getRefundStats);
+router.get(
+  '/stats',
+  asyncWrapper(protect),
+  asyncWrapper(admin),
+  asyncWrapper(getRefundStats)
+);
 
 module.exports = router;

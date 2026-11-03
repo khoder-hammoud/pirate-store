@@ -1,0 +1,30 @@
+$kind: http-request
+url: "{{baseUrl}}/lost-found"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "title": "قطة مفقودة",
+      "description": "قطة بيضاء صغيرة فقدت قرب دوار الساعة",
+      "isLost": true,
+      "neighborhoodId": "{{neighborhoodId}}",
+      "phoneNumber": "963944123456",
+      "imagePaths": []
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 2xx', function () {
+          pm.response.to.be.success;
+      });
+      pm.test('Response has success:true envelope', function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.eql(true);
+      });
+      const json = pm.response.json();
+      if (json.success) { pm.collectionVariables.set('lostFoundId', json.data.id); }
+    language: text/javascript
+order: 2000

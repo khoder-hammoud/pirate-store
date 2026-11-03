@@ -1,0 +1,25 @@
+$kind: http-request
+name: POST /api/v1/sales
+url: "{{api_base}}/sales"
+method: POST
+headers:
+  Authorization: Bearer {{access_token}}
+  Content-Type: application/json
+  Idempotency-Key: sale-{{$timestamp}}
+body:
+  type: text
+  content: |-
+    {
+      "branchId": "{{branch_id}}",
+      "items": [
+        {
+          "productId": "{{product_id}}",
+          "quantity": 1,
+          "unitPrice": "22.00"
+        }
+      ],
+      "paymentMethod": "CASH",
+      "amountPaid": "22.00",
+      "notes": "Test sale"
+    }
+order: 2000

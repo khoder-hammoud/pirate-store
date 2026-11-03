@@ -1,0 +1,18 @@
+$kind: http-request
+name: POST /api/v1/inventory
+url: "{{api_base}}/inventory"
+method: POST
+headers:
+  Authorization: Bearer {{access_token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Coffee Beans",
+      "unit": "kg",
+      "category": "Raw Materials",
+      "reorderPoint": "5",
+      "primarySupplierId": "{{supplier_id}}"
+    }
+order: 2000

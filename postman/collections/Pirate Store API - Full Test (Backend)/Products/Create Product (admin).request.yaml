@@ -1,0 +1,24 @@
+$kind: http-request
+url: "{{baseUrl}}/api/products"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{adminToken}}
+body:
+  type: text
+  content: |-
+    {
+      "name": "Demo Product",
+      "price": 19.99,
+      "description": "Sample product for Postman collection",
+      "category": "demo",
+      "countInStock": 100,
+      "image": "/images/demo.jpg"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Product created', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });
+      try { var body = pm.response.json(); if (body._id) pm.environment.set('productId', body._id); } catch(e) {}
+    language: text/javascript
+order: 1000

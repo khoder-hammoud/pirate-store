@@ -1,0 +1,2 @@
+$kind: collection
+description: Full Postman collection to test Pirate Store backend (auth, products, orders, refunds, users). Run requests in the recommended order in the README.

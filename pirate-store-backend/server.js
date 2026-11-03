@@ -8,6 +8,7 @@ const productRoutes = require('./routes/productRoutes');
 const userRoutes = require('./routes/userRoutes');
 const orderRoutes = require("./routes/orderRoutes");
 const refundRoutes = require('./routes/refundRoutes');
+const errorHandlerMiddleware = require('./middleware/errorHandlerMiddleware');
 dotenv.config();
 
 // الاتصال بقاعدة البيانات
@@ -28,7 +29,7 @@ app.use('/api/refunds', refundRoutes);
 
 
 const PORT = process.env.PORT || 5000;
-
+app.use(errorHandlerMiddleware);
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

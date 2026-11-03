@@ -1,0 +1,28 @@
+$kind: http-request
+description: 'Select a local image (jpeg/png/webp) or mp4 file for the "file" form field before sending — Postman cannot attach a file automatically. Max 25MB; allowed types: image/jpeg, image/png, image/webp, video/mp4.'
+url: "{{baseUrl}}/uploads"
+method: POST
+headers:
+  - key: Content-Type
+    value: multipart/form-data
+    disabled: true
+body:
+  type: formdata
+  content:
+    - type: file
+      key: file
+      src: []
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 2xx', function () {
+          pm.response.to.be.success;
+      });
+      pm.test('Response has success:true envelope', function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.eql(true);
+      });
+      const json = pm.response.json();
+      if (json.success) { pm.collectionVariables.set('uploadedPath', json.data.path); }
+    language: text/javascript
+order: 1000

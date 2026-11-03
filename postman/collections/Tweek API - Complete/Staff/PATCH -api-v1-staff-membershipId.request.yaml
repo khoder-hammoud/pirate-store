@@ -1,0 +1,17 @@
+$kind: http-request
+name: PATCH /api/v1/staff/:membershipId
+url: "{{api_base}}/staff/{{membership_id}}"
+method: PATCH
+headers:
+  Authorization: Bearer {{access_token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "jobTitle": "Senior Cashier",
+      "user": {
+        "name": "Sara Ali Updated"
+      }
+    }
+order: 4000

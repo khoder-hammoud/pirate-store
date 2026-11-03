@@ -1,0 +1,23 @@
+$kind: http-request
+name: POST /api/v1/staff
+url: "{{api_base}}/staff"
+method: POST
+headers:
+  Authorization: Bearer {{access_token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "roleId": "{{role_id}}",
+      "branchId": "{{branch_id}}",
+      "jobTitle": "Cashier",
+      "user": {
+        "name": "Sara Ali",
+        "email": "sara@tuwaiq.com",
+        "phone": "966500000001"
+      },
+      "password": "Secret123!",
+      "pin": "1234"
+    }
+order: 2000

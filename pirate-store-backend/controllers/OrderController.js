@@ -1,120 +1,85 @@
 // controllers/orderController.js
+
 const orderService = require('../services/orderService');
-const { handleOrderError } = require('../middleware/errorHandlerUtil');
+const AppError = require('../utils/AppError');
 
-/**
- * Create Order - POST /api/orders
- * @access Private
- */
-const createOrder = async (req, res) => {
-  try {
-    const order = await orderService.createOrder(req.user._id, req.body);
-    res.status(201).json(order);
-  } catch (error) {
-    console.error('Create Order Error:', error);
-    res.status(400).json({ message: error.message });
+const createOrder = async (req, res, next) => {
+  const order = await orderService.createOrder(req.user._id, req.body);
+
+  if (!order) {
+    return next(new AppError('Order creation failed', 400));
   }
+
+  res.status(201).json({
+    message: 'Order created successfully',
+    order
+  });
 };
 
-/**
- * Get My Orders - GET /api/orders/myorders
- * @access Private
- */
 const getUserOrders = async (req, res) => {
-  try {
-    const orders = await orderService.getUserOrders(req.user._id);
-    res.status(200).json(orders);
-  } catch (error) {
-    console.error('Get User Orders Error:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
+  const orders = await orderService.getUserOrders(req.user._id);
+
+  res.status(200).json(orders);
 };
 
-/**
- * Get Order By ID - GET /api/orders/:id
- * @access Private
- */
-const getOrderById = async (req, res) => {
-  try {
-    const order = await orderService.getOrderById(req.params.id, req.user);
-    res.status(200).json(order);
-  } catch (error) {
-    console.error('Get Order By ID Error:', error);
-    const { status, message } = handleOrderError(error);
-    res.status(status).json({ message });
+const getOrderById = async (req, res, next) => {
+  const order = await orderService.getOrderById(req.params.id, req.user);
+
+  if (!order) {
+    return next(new AppError('Order not found', 404));
   }
+
+  res.status(200).json(order);
 };
 
-/**
- * Delete Order (Soft Delete) - DELETE /api/orders/:id
- * @access Private (Admin)
- */
 const deleteOrder = async (req, res) => {
-  try {
-    await orderService.deleteOrder(req.params.id);
-    res.status(200).json({ message: 'Order soft deleted successfully' });
-  } catch (error) {
-    console.error('Soft Delete Order Error:', error);
-    const { status, message } = handleOrderError(error);
-    res.status(status).json({ message });
-  }
+  await orderService.deleteOrder(req.params.id);
+
+  res.status(200).json({
+    message: 'Order soft deleted successfully'
+  });
 };
 
-/**
- * Mark Order as Paid - PUT /api/orders/:id/pay
- * @access Private
- */
-const updateOrderToPaid = async (req, res) => {
-  try {
-    const order = await orderService.updateOrderToPaid(req.params.id, req.user);
-    res.status(200).json({
-      message: 'Order paid and stock updated successfully',
-      order
-    });
-  } catch (error) {
-    console.error('Update Order To Paid Error:', error);
-    const { status, message } = handleOrderError(error);
-    res.status(status).json({ message });
+const updateOrderToPaid = async (req, res, next) => {
+  const order = await orderService.updateOrderToPaid(req.params.id, req.user);
+
+  if (!order) {
+    return next(new AppError('Payment failed', 400));
   }
+
+  res.status(200).json({
+    message: 'Order paid and stock updated successfully',
+    order
+  });
 };
 
-/**
- * Mark Order as Delivered - PUT /api/orders/:id/deliver
- * @access Private (Admin)
- */
-const updateOrderToDelivered = async (req, res) => {
-  try {
-    const order = await orderService.updateOrderToDelivered(
-      req.params.id,
-      req.user
-    );
-    res.status(200).json({
-      message: 'Order marked as delivered',
-      order
-    });
-  } catch (error) {
-    console.error('Update Order To Delivered Error:', error);
-    const { status, message } = handleOrderError(error);
-    res.status(status).json({ message });
+const updateOrderToDelivered = async (req, res, next) => {
+  const order = await orderService.updateOrderToDelivered(
+    req.params.id,
+    req.user
+  );
+
+  if (!order) {
+    return next(new AppError('Delivery update failed', 400));
   }
+
+  res.status(200).json({
+    message: 'Order marked as delivered',
+    order
+  });
 };
 
-/**
- * Cancel Order - PUT /api/orders/:id/cancel
- * @access Private
- */
-const cancelOrder = async (req, res) => {
-  try {
-    const order = await orderService.cancelOrder(req.params.id, req.user);
-    res.status(200).json({
-      message: 'Order cancelled successfully',
-      order
-    });
-  } catch (error) {
-    console.error('Cancel Order Error:', error);
-    const { status, message } = handleOrderError(error);
-    res.status(status).json({ message });
+const cancelOrder = async (req, res, next) => {
+  const order = await orderService.cancelOrder(req.params.id, req.user);
+
+  if (!order) {
+    return next(new AppError('Cancel order failed', 400));
   }
+
+  res.status(200).json({
+    message: 'Order cancelled successfully',
+    order
+  });
 };
 
 module.exports = {

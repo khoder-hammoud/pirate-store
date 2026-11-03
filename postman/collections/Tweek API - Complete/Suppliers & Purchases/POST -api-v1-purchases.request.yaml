@@ -1,0 +1,24 @@
+$kind: http-request
+name: POST /api/v1/purchases
+url: "{{api_base}}/purchases"
+method: POST
+headers:
+  Authorization: Bearer {{access_token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "branchId": "{{branch_id}}",
+      "supplierId": "{{supplier_id}}",
+      "invoiceNumber": "PO-1001",
+      "items": [
+        {
+          "inventoryItemId": "{{inventory_item_id}}",
+          "quantity": "10",
+          "unitCost": "12.50"
+        }
+      ],
+      "notes": "Initial stock purchase"
+    }
+order: 4000

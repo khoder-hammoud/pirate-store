@@ -1,0 +1,31 @@
+$kind: http-request
+url: "{{baseUrl}}/jobs"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "title": "مطلوب موظف مبيعات",
+      "company": "محلات الجوهري",
+      "jobType": "FULL_TIME",
+      "salary": "500000",
+      "neighborhoodId": "{{neighborhoodId}}",
+      "description": "مطلوب موظف مبيعات بدوام كامل، خبرة سنتين على الأقل",
+      "phoneNumber": "963944123456"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 2xx', function () {
+          pm.response.to.be.success;
+      });
+      pm.test('Response has success:true envelope', function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.eql(true);
+      });
+      const json = pm.response.json();
+      if (json.success) { pm.collectionVariables.set('jobId', json.data.id); }
+    language: text/javascript
+order: 2000

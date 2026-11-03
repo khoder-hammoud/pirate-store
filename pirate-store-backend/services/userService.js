@@ -1,6 +1,6 @@
-// services/userService.js
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
+const AppError = require('../utils/AppError');
 
 /**
  * Register a new user
@@ -8,13 +8,12 @@ const generateToken = require('../utils/generateToken');
 const registerUser = async (userData) => {
   const { name, email, password } = userData;
 
-  // Check if user already exists
   const userExists = await User.findOne({ email });
+
   if (userExists) {
-    throw new Error('المستخدم موجود مسبقاً');
+    throw new AppError('User already exists', 400);
   }
 
-  // Create new user (password will be hashed automatically in model)
   const user = await User.create({
     name,
     email,
@@ -22,7 +21,7 @@ const registerUser = async (userData) => {
   });
 
   if (!user) {
-    throw new Error('بيانات غير صالحة');
+    throw new AppError('Invalid user data', 400);
   }
 
   return {
@@ -37,25 +36,23 @@ const registerUser = async (userData) => {
  * Login user
  */
 const loginUser = async (email, password) => {
-  // Check if user exists
   const user = await User.findOne({ email });
+
   if (!user) {
-    throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+    throw new AppError('Invalid email or password', 401);
   }
 
-  // Compare password
   const isMatch = await user.comparePassword(password);
-  if (!isMatch) {
-    throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
-  }
 
-  const token = generateToken(user._id);
+  if (!isMatch) {
+    throw new AppError('Invalid email or password', 401);
+  }
 
   return {
     _id: user._id,
     name: user.name,
     email: user.email,
-    token
+    token: generateToken(user._id)
   };
 };
 
@@ -64,9 +61,9 @@ const loginUser = async (email, password) => {
  */
 const getUserProfile = async (userId) => {
   const user = await User.findById(userId);
-  
+
   if (!user) {
-    throw new Error('User not found');
+    throw new AppError('User not found', 404);
   }
 
   return {
@@ -84,20 +81,12 @@ const updateUserProfile = async (userId, updateData) => {
   const user = await User.findById(userId);
 
   if (!user) {
-    throw new Error('User not found');
+    throw new AppError('User not found', 404);
   }
 
-  if (updateData.name) {
-    user.name = updateData.name;
-  }
-
-  if (updateData.email) {
-    user.email = updateData.email;
-  }
-
-  if (updateData.password) {
-    user.password = updateData.password; // Will be hashed automatically
-  }
+  if (updateData.name) user.name = updateData.name;
+  if (updateData.email) user.email = updateData.email;
+  if (updateData.password) user.password = updateData.password;
 
   const updatedUser = await user.save();
 
@@ -121,16 +110,16 @@ const getAllUsers = async () => {
  * Delete user by ID
  */
 const deleteUserById = async (userId) => {
-  const user = await User.findById(userId);
+  const user = await User.findByIdAndDelete(userId);
 
   if (!user) {
-    throw new Error('User not found');
+    throw new AppError('User not found', 404);
   }
 
   await user.remove();
 
   return {
-    message: 'User removed successfully'
+    message: 'User deleted successfully'
   };
 };
 

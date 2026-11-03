@@ -1,4 +1,6 @@
 const express = require('express');
+const asyncWrapper = require('../utils/asyncWrapper');
+
 const router = express.Router();
 const { 
   registerUser, 
@@ -11,21 +13,44 @@ const {
 const { protect, admin } = require('../middleware/authMiddleware');
 
 // تسجيل مستخدم جديد - مفتوح للجميع
-router.post('/register', registerUser);
+router.post(
+  '/register',
+  asyncWrapper(registerUser)
+);
 
 // تسجيل الدخول - مفتوح للجميع
-router.post('/login', loginUser);
+router.post(
+  '/login',
+  asyncWrapper(loginUser)
+);
 
-// الحصول على بيانات المستخدم نفسه - يجب تسجيل الدخول
-router.get('/profile', protect, getUserProfile);
+// الحصول على بيانات المستخدم نفسه / تعديلها - يجب تسجيل الدخول
+router.route('/profile')
+  .get(
+    asyncWrapper(protect),
+    asyncWrapper(getUserProfile)
+  )
+  .put(
+    asyncWrapper(protect),
+    asyncWrapper(updateUserProfile)
+  );
 
-// تعديل بيانات المستخدم نفسه - يجب تسجيل الدخول
-router.put('/profile', protect, updateUserProfile);
+// ملاحظة: حذف الحساب الشخصي عبر '/profile' غير معرف في controllers، لذلك لم يُضمّن هنا.
 
 // جلب كل المستخدمين - فقط الأدمن
-router.get('/', protect, admin, getAllUsers);
+router.get(
+  '/',
+  asyncWrapper(protect),
+  asyncWrapper(admin),
+  asyncWrapper(getAllUsers)
+);
 
 // حذف مستخدم معين - فقط الأدمن
-router.delete('/:id', protect, admin, deleteUserById);
+router.delete(
+  '/:id',
+  asyncWrapper(protect),
+  asyncWrapper(admin),
+  asyncWrapper(deleteUserById)
+);
 
 module.exports = router;

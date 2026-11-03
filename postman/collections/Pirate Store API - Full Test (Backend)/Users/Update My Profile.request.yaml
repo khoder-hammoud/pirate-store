@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/api/users/profile"
+method: PUT
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{userToken}}
+body:
+  type: text
+  content: |-
+    {
+      "name": "Updated Name"
+    }
+order: 2000

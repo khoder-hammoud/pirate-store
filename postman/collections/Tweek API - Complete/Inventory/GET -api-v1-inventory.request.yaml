@@ -1,0 +1,10 @@
+$kind: http-request
+name: GET /api/v1/inventory
+url: "{{api_base}}/inventory?page=1&perPage=20"
+method: GET
+headers:
+  Authorization: Bearer {{access_token}}
+queryParams:
+  page: "1"
+  perPage: "20"
+order: 1000

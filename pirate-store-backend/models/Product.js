@@ -4,7 +4,8 @@ const productSchema = new mongoose.Schema ({
     name:{
         type: String,
         required: [true,"Product name is required"],
-        trim:true///لحتى ما يكون في مسافات زياده بالاسم 
+        trim:true,///لحتى ما يكون في مسافات زياده بالاسم ,
+        unique: true
     },
     description:{
         type: String,

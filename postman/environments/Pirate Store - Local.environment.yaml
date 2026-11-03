@@ -1,0 +1,26 @@
+name: Pirate Store - Local
+values:
+  - key: baseUrl
+    value: 'http://localhost:5000'
+  - key: userEmail
+    value: user@example.com
+  - key: userPassword
+    value: password123
+  - key: adminEmail
+    value: admin@example.com
+  - key: adminPassword
+    value: admin123
+  - key: userToken
+    value: ''
+  - key: adminToken
+    value: ''
+  - key: productId
+    value: ''
+  - key: orderId
+    value: ''
+  - key: refundId
+    value: ''
+  - key: userId
+    value: ''
+  - key: adminId
+    value: ''

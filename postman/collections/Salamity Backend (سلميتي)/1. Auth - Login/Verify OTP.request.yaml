@@ -1,0 +1,35 @@
+$kind: http-request
+description: Issues a JWT. If this phone number has no User yet, the token is a "pre-profile" token (no userId claim) — good enough to call Create Neighborhood and Complete Profile, nothing else.
+url: "{{baseUrl}}/auth/verify-otp"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "phoneNumber": "{{phoneNumber}}",
+      "code": "{{otpCode}}"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 2xx', function () {
+          pm.response.to.be.success;
+      });
+      pm.test('Response has success:true envelope', function () {
+          const json = pm.response.json();
+          pm.expect(json.success).to.eql(true);
+      });
+      const json = pm.response.json();
+      if (json.success) {
+          pm.collectionVariables.set('accessToken', json.data.accessToken);
+          pm.collectionVariables.set('profileComplete', json.data.profileComplete);
+      }
+      pm.test('accessToken captured', function () {
+          pm.expect(pm.collectionVariables.get('accessToken')).to.not.be.empty;
+      });
+    language: text/javascript
+order: 2000

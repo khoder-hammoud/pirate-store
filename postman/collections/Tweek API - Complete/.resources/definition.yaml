@@ -1,0 +1,19 @@
+$kind: collection
+name: Tweek API - Complete
+description: "Complete Postman collection for the Tweek backend. Local base URL: http://localhost:4000/api/v1. Uses the auth cookie for refresh/logout flows."
+variables:
+  base_url: http://localhost:4000
+  api_base: http://localhost:4000/api/v1
+  owner_email: bilal@tuwaiq.com
+  owner_password: CHANGE_ME_INSTRUCTIONS_IN_README
+  access_token: ""
+  branch_id: ""
+  business_id: ""
+  role_id: ""
+  membership_id: ""
+  category_id: ""
+  product_id: ""
+  inventory_item_id: ""
+  supplier_id: ""
+  purchase_id: ""
+  sale_id: ""
